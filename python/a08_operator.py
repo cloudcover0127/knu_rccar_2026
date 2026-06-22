@@ -15,6 +15,10 @@ def main():
     a = Add_test()
     b = Add_test()
     print(a + b)
+    print(a + 123)
+    print(a + 3.14)
+    print("abcd" * 5)
+   # print("abcd" + 5)
 
 if __name__ == "__main__":
     main()
