@@ -12,5 +12,9 @@ def main():
     string5 = "this is format test: {2:+.2f} {1:+5.2f} {0:+05.2f}".format(10.1263, -20.4213, -30)
     print(string5)
 
+    string6 = 10.126
+    print(f"this is format test: {string6:+10.2f}")
+    print(f"this is format test: {3.141592:+10.2f}")
+
 if __name__ == "__main__":
     main()
