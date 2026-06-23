@@ -14,7 +14,7 @@ def main():
     print(list_b.pop())
     print(list_b)
 
-    if "f" in list_b
+    if "f" in list_b:
         list_b.remove("f")
     print(list_b)
 
