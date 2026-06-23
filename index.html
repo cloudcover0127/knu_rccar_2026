@@ -4,57 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>장운호 | 자율주행 포트폴리오</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
+        /* 1. 디자인 베이스 업그레이드 (고급 다크모드) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Inter', 'Noto Sans KR', sans-serif; 
-            background-color: #0b0f19; 
-            color: #e2e8f0; 
+            background-color: #0b0f19; /* 깊고 부드러운 다크네이비 */
+            color: #cbd5e1; 
             line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
         }
 
-        main { 
-            max-width: 700px; 
-            margin: 0 auto; 
-            padding: 5rem 1.5rem; 
+        main { max-width: 680px; margin: 0 auto; padding: 5rem 1.5rem; }
+
+        /* 2. 상단 프로필 구역 디자인 세련되게 */
+        .profile { margin-bottom: 4rem; padding-bottom: 2.5rem; border-bottom: 1px solid #1e293b; }
+        .university { font-size: 0.8rem; color: #38bdf8; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 0.6rem; }
+        .profile h1 { font-size: 2.4rem; font-weight: 800; color: #fff; margin-bottom: 0.8rem; letter-spacing: -0.5px; }
+        .profile p { color: #94a3b8; font-size: 1.05rem; font-weight: 400; }
+        
+        .repo-link { display: inline-flex; align-items: center; margin-top: 1.2rem; color: #38bdf8; font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: color 0.2s; }
+        .repo-link:hover { color: #60a5fa; text-decoration: underline; }
+
+        .section-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #475569; margin-bottom: 1.5rem; }
+        
+        /* 3. README 내용이 변환되어 들어갈 자동 아코디언 스타일 */
+        #logs-container details {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            margin-bottom: 1.2rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
         }
-
-        /* 상단 프로필 */
-        .profile { margin-bottom: 3.5rem; border-bottom: 1px solid #1e2937; padding-bottom: 2rem; }
-        .university { font-size: 0.85rem; color: #38bdf8; font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem; }
-        .profile h1 { font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.8rem; }
-        .profile p { color: #94a3b8; font-size: 1.05rem; word-break: keep-all; }
-        
-        .repo-link { display: inline-block; margin-top: 1rem; color: #38bdf8; font-size: 0.9rem; font-weight: 600; text-decoration: none; }
-        .repo-link:hover { text-decoration: underline; }
-
-        /* 깃허브 README가 렌더링되어 들어갈 구역 스타일링 (개발자 감성) */
-        .readme-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #475569; margin-bottom: 1rem; }
-        
-        #readme-content { 
-            background: #111827; 
-            border: 1px solid #1f2937; 
-            padding: 2rem; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        #logs-container details[open] {
+            border-color: #38bdf8;
+            box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.1);
         }
-
-        /* 불러온 마크다운 내부 요소들 꾸미기 */
-        #readme-content h1, #readme-content h2, #readme-content h3 { color: #fff; margin: 1.5rem 0 0.8rem 0; font-weight: 700; }
-        #readme-content h1 { font-size: 1.5rem; border-bottom: 1px solid #1f2937; padding-bottom: 0.5rem; }
-        #readme-content h2 { font-size: 1.3rem; }
-        #readme-content p { color: #94a3b8; margin-bottom: 1rem; font-size: 0.95rem; word-break: keep-all; }
-        #readme-content ul, #readme-content ol { padding-left: 1.5rem; margin-bottom: 1rem; color: #94a3b8; font-size: 0.95rem; }
-        #readme-content li { margin-bottom: 0.4rem; }
-        #readme-content code { background: #1e293b; color: #38bdf8; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.85rem; }
-        #readme-content pre { background: #1e293b; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; border: 1px solid #334155; }
-        #readme-content pre code { background: none; color: #e2e8f0; padding: 0; }
         
-        /* 로딩 애니메이션 */
-        .loading { color: #475569; font-size: 0.9rem; text-align: center; padding: 2rem 0; font-style: italic; }
+        /* 아코디언 클릭 영역 (날짜 제목) */
+        #logs-container summary {
+            padding: 1.3rem 1.5rem;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            list-style: none;
+            position: relative;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        #logs-container summary::-webkit-details-marker { display: none; }
+        
+        /* 깔끔한 미니멀 화살표 아이콘 */
+        #logs-container summary::after {
+            content: '→';
+            position: absolute;
+            right: 1.5rem;
+            color: #475569;
+            font-size: 1rem;
+            transition: transform 0.3s, color 0.3s;
+        }
+        #logs-container details[open] summary::after {
+            transform: rotate(90deg);
+            color: #38bdf8;
+        }
+        #logs-container summary:hover { background-color: #1e293b; }
+
+        /* 4. 펼쳐지는 내부 교시별 리스트 본문 초깔끔 디자인 꾸미기 */
+        .details-content {
+            padding: 1.8rem 1.8rem;
+            background: #0f172a;
+            border-top: 1px solid #1e293b;
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+        
+        /* 마크다운 리스트 스타일 가독성 극대화 */
+        .details-content ul { padding-left: 1rem; list-style: none; }
+        .details-content li { margin-bottom: 0.8rem; position: relative; padding-left: 1.2rem; }
+        .details-content li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #38bdf8;
+            font-weight: bold;
+        }
+        /* 1교시, 2교시 강조 글자 색상 */
+        .details-content strong { color: #e2e8f0; font-weight: 600; margin-right: 0.3rem; }
+        
+        /* 로딩/에러 표시 */
+        .loading { color: #475569; font-size: 0.9rem; text-align: center; padding: 3rem 0; }
     </style>
 </head>
 <body>
@@ -63,39 +107,73 @@
         <section class="profile">
             <div class="university">KONGJU NATIONAL UNIVERSITY</div>
             <h1>장운호</h1>
-            <p>공주대학교 재학 중 | RC카 기반 자율주행 프로그램 교육 과정</p>
+            <p>공주대학교 | RC카 기반 자율주행 프로그램 교육 과정</p>
             <a href="https://github.com/cloudcover0127/knu_rccar_2026" target="_blank" class="repo-link">
-                🐱 실제 GitHub 저장소 방문하기 →
+                🐱 GitHub Repository →
             </a>
         </section>
 
         <section>
-            <div class="readme-title">Project README.md</div>
-            <div id="readme-content">
-                <div class="loading">저장소에서 실시간으로 README 파일을 불러오는 중...</div>
+            <div class="section-title">Daily Learning Logs</div>
+            <div id="logs-container">
+                <div class="loading">README 파일을 동기화하여 아코디언으로 정렬 중...</div>
             </div>
         </section>
     </main>
 
     <script>
-        // 장운호님의 실제 깃허브 저장소 README 주소
-        const repoUrl = 'https://raw.githubusercontent.com/cloudcover0127/knu_rccar_2026/main/README.md';
+        // 장운호님의 퍼블릭 master 브랜치 README 연동
+        const repoUrl = 'https://raw.githubusercontent.com/cloudcover0127/knu_rccar_2026/master/README.md';
 
-        // 실시간으로 파일 불러오기(Fetch)
         fetch(repoUrl)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('README 파일을 가져오지 못했습니다.');
-                }
+                if (!response.ok) throw new Error();
                 return response.text();
             })
-            .then(markdownText => {
-                // 가져온 마크다운 텍스트를 HTML로 변환해서 구역에 집어넣기
-                document.getElementById('readme-content').innerHTML = marked.parse(markdownText);
+            .then(text => {
+                // 마크다운을 HTML로 임시 파싱
+                const rawHtml = marked.parse(text);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = rawHtml;
+                
+                const container = document.getElementById('logs-container');
+                container.innerHTML = ''; 
+
+                // README 안의 '### 날짜' 태그들을 전부 추출
+                const dates = tempDiv.querySelectorAll('h3');
+                
+                if(dates.length === 0) {
+                    // 혹시 형식이 안 맞으면 통째로 이쁘게 출력
+                    container.innerHTML = `<div class="details-content">${rawHtml}</div>`;
+                    return;
+                }
+
+                // 날짜별로 쪼개서 세련된 <details> 카드로 자동 재조립
+                dates.forEach(dateElement => {
+                    const details = document.createElement('details');
+                    const summary = document.createElement('summary');
+                    
+                    // 제목 텍스트 적용 (예: 2026년 6월 23일)
+                    summary.textContent = dateElement.textContent; 
+                    details.appendChild(summary);
+
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'details-content';
+
+                    // 다음 날짜(H3)를 만나기 전까지의 내용물들(교시별 리스트)을 싹 긁어 담기
+                    let nextEl = dateElement.nextElementSibling;
+                    while (nextEl && nextEl.tagName !== 'H3') {
+                        contentDiv.appendChild(nextEl.cloneNode(true));
+                        nextEl = nextEl.nextElementSibling;
+                    }
+
+                    details.appendChild(contentDiv);
+                    container.appendChild(details);
+                });
             })
-            .catch(error => {
-                document.getElementById('readme-content').innerHTML = 
-                    `<p style="color: #ef4444; text-align:center;">리포지토리에 아직 README.md 파일이 없거나 불러오지 못했습니다.</p>`;
+            .catch(() => {
+                document.getElementById('logs-container').innerHTML = 
+                    `<p style="color: #ef4444; text-align:center; font-size:0.9rem;">README.md 연동에 실패했습니다. 파일명을 확인해 주세요.</p>`;
             });
     </script>
 
