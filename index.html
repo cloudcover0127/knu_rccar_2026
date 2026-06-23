@@ -8,189 +8,203 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
+        /* 기본 세팅 및 스무스 스크롤 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body { 
             font-family: 'Inter', 'Noto Sans KR', sans-serif; 
-            background-color: #0b0f19; /* 고급스러운 딥 다크 */
-            color: #cbd5e1; 
-            line-height: 1.7;
+            background-color: #030712; /* 더 깊은 블랙 계열로 변경 */
+            color: #f3f4f6; 
+            line-height: 1.8;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
-        main { max-width: 680px; margin: 0 auto; padding: 5rem 1.5rem; }
+        /* 우주선 안 같은 은은한 가상 배경 광원들 */
+        .bg-glow-1 { position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vh; background: radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%); pointer-events: none; }
+        .bg-glow-2 { position: fixed; bottom: -10%; right: -10%; width: 50vw; height: 50vh; background: radial-gradient(circle, rgba(129,140,248,0.08) 0%, transparent 70%); pointer-events: none; }
 
-        /* ✨ 1. 프로필 영역 그라데이션 카드화 */
+        main { max-width: 680px; margin: 0 auto; padding: 6rem 1.5rem; position: relative; z-index: 10; }
+
+        /* 🔥 1. 네온 하이라이트가 들어간 프로필 카드 */
         .profile-card { 
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid #334155;
-            padding: 2.5rem 2rem; 
-            border-radius: 16px; 
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 3rem 2.5rem; 
+            border-radius: 20px; 
             margin-bottom: 4rem;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.7);
             position: relative;
-            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
-        /* 은은한 배경 후광 효과 */
-        .profile-card::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            right: -50px;
-            width: 150px;
-            height: 150px;
-            background: #38bdf8;
-            filter: blur(80px);
-            opacity: 0.15;
-            pointer-events: none;
+        .profile-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 20px 40px -15px rgba(56, 189, 248, 0.15);
         }
 
         .university { 
-            font-size: 0.8rem; 
+            font-size: 0.75rem; 
             color: #38bdf8; 
-            font-weight: 700; 
-            letter-spacing: 1.5px; 
-            margin-bottom: 0.6rem; 
+            font-weight: 800; 
+            letter-spacing: 2px; 
+            margin-bottom: 0.8rem; 
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
         }
         .profile-card h1 { 
-            font-size: 2.4rem; 
+            font-size: 2.6rem; 
             font-weight: 800; 
             color: #fff; 
-            margin-bottom: 0.8rem; 
-            letter-spacing: -0.5px; 
+            margin-bottom: 1rem; 
+            letter-spacing: -1px; 
         }
         .profile-card p { 
-            color: #94a3b8; 
+            color: #9ca3af; 
             font-size: 1.05rem; 
             font-weight: 400; 
             word-break: keep-all;
         }
         
-        /* ✨ 2. 깃허브 바로가기 버튼 컴포넌트화 */
+        /* 🔥 2. 글로우 이펙트가 포함된 깃허브 버튼 */
         .repo-btn { 
             display: inline-flex; 
             align-items: center; 
-            gap: 0.5rem;
-            margin-top: 1.5rem; 
-            background: #38bdf8;
-            color: #0b0f19; 
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
+            gap: 0.6rem;
+            margin-top: 2rem; 
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            color: #030712; 
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
             font-size: 0.85rem; 
             font-weight: 700; 
             text-decoration: none; 
-            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);
+            transition: all 0.3s ease;
         }
         .repo-btn:hover { 
-            background: #60a5fa; 
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3);
+            transform: scale(1.03);
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.45);
         }
 
         .section-title { 
             font-size: 0.8rem; 
-            font-weight: 700; 
+            font-weight: 800; 
             text-transform: uppercase; 
-            letter-spacing: 1.5px; 
-            color: #475569; 
-            margin-bottom: 1.5rem; 
-            padding-left: 0.2rem;
+            letter-spacing: 2px; 
+            color: #4b5563; 
+            margin-bottom: 1.8rem; 
         }
         
-        /* ✨ 3. 아코디언 카드 디자인 디테일 향상 */
+        /* 🔥 3. 빵빵한 애니메이션 인터랙션이 가미된 아코디언 */
         #logs-container details {
-            background: #111827;
-            border: 1px solid #1e293b;
-            border-radius: 12px;
+            background: rgba(17, 24, 39, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 14px;
             margin-bottom: 1.2rem;
             overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #logs-container details:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(17, 24, 39, 0.6);
         }
         #logs-container details[open] {
-            border-color: #38bdf8;
-            box-shadow: 0 10px 20px -3px rgba(56, 189, 248, 0.08);
+            border-color: rgba(56, 189, 248, 0.4);
+            background: rgba(17, 24, 39, 0.8);
+            box-shadow: 0 10px 30px -10px rgba(56, 189, 248, 0.1);
         }
         
         #logs-container summary {
-            padding: 1.3rem 1.5rem;
-            color: #fff;
+            padding: 1.4rem 1.8rem;
+            color: #f3f4f6;
             font-weight: 700;
             font-size: 1.1rem;
             cursor: pointer;
             list-style: none;
             position: relative;
             user-select: none;
-            transition: background 0.2s;
         }
         #logs-container summary::-webkit-details-marker { display: none; }
         
-        /* 움직이는 세련된 화살표 */
+        /* 화살표 대신 모던한 무브먼트 플러스(+) 기호 변경 */
         #logs-container summary::after {
-            content: '→';
+            content: '+';
             position: absolute;
-            right: 1.5rem;
-            color: #475569;
-            font-size: 1.1rem;
+            right: 1.8rem;
+            color: #6b7280;
+            font-size: 1.4rem;
+            font-weight: 300;
+            top: 50%;
+            transform: translateY(-50%);
             transition: transform 0.3s ease, color 0.3s;
         }
         #logs-container details[open] summary::after {
-            transform: rotate(90deg);
+            transform: translateY(-50%) rotate(45deg); /* 열리면 X 기호로 교차 변형 */
             color: #38bdf8;
         }
-        #logs-container summary:hover { background-color: #1e293b; }
 
-        /* 내부 본문 스타일링 */
+        /* 열릴 때 부드럽게 나타나는 본문 영역 */
         .details-content {
-            padding: 1.8rem;
-            background: #0f172a;
-            border-top: 1px solid #1e293b;
-            color: #94a3b8;
+            padding: 2rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: #9ca3af;
             font-size: 0.95rem;
+            animation: fadeIn 0.4s ease-out;
         }
         
-        /* 리스트 항목에 트렌디한 인디케이터 적용 */
-        .details-content ul { padding-left: 0.5rem; list-style: none; }
-        .details-content li { margin-bottom: 0.8rem; position: relative; padding-left: 1.5rem; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .details-content ul { list-style: none; }
+        .details-content li { margin-bottom: 0.9rem; position: relative; padding-left: 1.5rem; }
+        
+        /* 네온 포인트 도트 */
         .details-content li::before {
             content: "";
             position: absolute;
             left: 0;
-            top: 0.6rem;
+            top: 0.65rem;
             width: 6px;
             height: 6px;
             border-radius: 50%;
             background-color: #38bdf8;
+            box-shadow: 0 0 8px #38bdf8;
         }
-        .details-content strong { color: #e2e8f0; font-weight: 600; margin-right: 0.4rem; }
+        .details-content strong { color: #f3f4f6; font-weight: 600; margin-right: 0.5rem; }
         
-        .loading { color: #475569; font-size: 0.9rem; text-align: center; padding: 3rem 0; }
-        
-        footer { text-align: center; margin-top: 6rem; padding-top: 2rem; border-top: 1px solid #1e293b; color: #475569; font-size: 0.8rem; }
+        .loading { color: #4b5563; font-size: 0.9rem; text-align: center; padding: 4rem 0; font-family: monospace; }
+        footer { text-align: center; margin-top: 8rem; padding: 2rem 0; border-top: 1px solid rgba(255, 255, 255, 0.03); color: #4b5563; font-size: 0.8rem; }
     </style>
 </head>
 <body>
+
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
 
     <main>
         <section class="profile-card">
             <div class="university">KONGJU NATIONAL UNIVERSITY</div>
             <h1>장운호</h1>
-            <p>공주대학교 지능형모빌리티공학과 | RC카 기반 자율주행 프로그램 교육 과정</p>
+            <p>공주대학교 | RC카 기반 자율주행 프로그램 교육 과정</p>
             
             <a href="https://github.com/cloudcover0127/knu_rccar_2026" target="_blank" class="repo-btn">
-                <span> GitHub Repository</span>
+                <span>🐱 GitHub Repository</span>
             </a>
         </section>
 
         <section>
             <div class="section-title">Daily Learning Logs</div>
             <div id="logs-container">
-                <div class="loading">README 파일을 불러와 디자인을 적용 중...</div>
+                <div class="loading">Fetching and rendering logs from master branch...</div>
             </div>
         </section>
         
         <footer>
-            <p>© 2026 Jang Un-ho. Powered by GitHub Pages.</p>
+            <p>© 2026 Jang Un-ho. Designed with premium dark code.</p>
         </footer>
     </main>
 
