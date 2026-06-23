@@ -5,62 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>장운호 | 자율주행 포트폴리오</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
-        /* 깔끔한 다크 감성 스타일 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Inter', 'Noto Sans KR', sans-serif; 
             background-color: #0b0f19; 
             color: #e2e8f0; 
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            line-height: 1.7;
         }
 
         main { 
-            flex: 1;
-            max-width: 600px; 
+            max-width: 700px; 
             margin: 0 auto; 
-            padding: 6rem 1.5rem 2rem 1.5rem; 
+            padding: 5rem 1.5rem; 
         }
 
-        /* 내 프로필 상단 */
-        .profile { margin-bottom: 3rem; }
-        .university { font-size: 0.9rem; color: #38bdf8; font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem; }
-        .profile h1 { font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 1rem; }
+        /* 상단 프로필 */
+        .profile { margin-bottom: 3.5rem; border-bottom: 1px solid #1e2937; padding-bottom: 2rem; }
+        .university { font-size: 0.85rem; color: #38bdf8; font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .profile h1 { font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.8rem; }
         .profile p { color: #94a3b8; font-size: 1.05rem; word-break: keep-all; }
-
-        /* 프로젝트 단독 카드 */
-        .section-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #475569; margin-bottom: 1rem; }
         
-        .project-box { 
+        .repo-link { display: inline-block; margin-top: 1rem; color: #38bdf8; font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+        .repo-link:hover { text-decoration: underline; }
+
+        /* 깃허브 README가 렌더링되어 들어갈 구역 스타일링 (개발자 감성) */
+        .readme-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #475569; margin-bottom: 1rem; }
+        
+        #readme-content { 
             background: #111827; 
             border: 1px solid #1f2937; 
-            padding: 1.8rem; 
+            padding: 2rem; 
             border-radius: 12px; 
-            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
-        .project-box h3 { font-size: 1.15rem; color: #fff; font-family: monospace; margin-bottom: 0.6rem; }
-        .project-box p { color: #94a3b8; font-size: 0.95rem; margin-bottom: 1.5rem; }
 
-        /* 버튼 스타일 */
-        .btn { 
-            display: inline-flex; 
-            align-items: center; 
-            background: #38bdf8; 
-            color: #0b0f19; 
-            font-weight: 700; 
-            padding: 0.6rem 1.2rem; 
-            border-radius: 6px; 
-            font-size: 0.85rem; 
-            text-decoration: none;
-            transition: background 0.2s; 
-        }
-        .btn:hover { background: #0ea5e9; color: #fff; }
-
-        footer { text-align: center; padding: 2rem 0; color: #334155; font-size: 0.8rem; }
+        /* 불러온 마크다운 내부 요소들 꾸미기 */
+        #readme-content h1, #readme-content h2, #readme-content h3 { color: #fff; margin: 1.5rem 0 0.8rem 0; font-weight: 700; }
+        #readme-content h1 { font-size: 1.5rem; border-bottom: 1px solid #1f2937; padding-bottom: 0.5rem; }
+        #readme-content h2 { font-size: 1.3rem; }
+        #readme-content p { color: #94a3b8; margin-bottom: 1rem; font-size: 0.95rem; word-break: keep-all; }
+        #readme-content ul, #readme-content ol { padding-left: 1.5rem; margin-bottom: 1rem; color: #94a3b8; font-size: 0.95rem; }
+        #readme-content li { margin-bottom: 0.4rem; }
+        #readme-content code { background: #1e293b; color: #38bdf8; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.85rem; }
+        #readme-content pre { background: #1e293b; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; border: 1px solid #334155; }
+        #readme-content pre code { background: none; color: #e2e8f0; padding: 0; }
+        
+        /* 로딩 애니메이션 */
+        .loading { color: #475569; font-size: 0.9rem; text-align: center; padding: 2rem 0; font-style: italic; }
     </style>
 </head>
 <body>
@@ -69,25 +63,41 @@
         <section class="profile">
             <div class="university">KONGJU NATIONAL UNIVERSITY</div>
             <h1>장운호</h1>
-            <p>공주대학교에 재학 중이며, 현재 RC카를 활용한 자율주행 프로그램 교육 과정을 이수하고 있습니다.</p>
+            <p>공주대학교 재학 중 | RC카 기반 자율주행 프로그램 교육 과정</p>
+            <a href="https://github.com/cloudcover0127/knu_rccar_2026" target="_blank" class="repo-link">
+                🐱 실제 GitHub 저장소 방문하기 →
+            </a>
         </section>
 
         <section>
-            <div class="section-title">Current Project</div>
-            <div class="project-box">
-                <h3>knu_rccar_2026</h3>
-                <p>파이썬 기초 문법부터 자율주행 알고리즘 구현까지, 교육 과정을 통해 배우고 개발한 코드를 기록해 나가는 저장소입니다.</p>
-                
-                <a href="https://github.com/cloudcover0127/knu_rccar_2026" target="_blank" class="btn">
-                    GitHub Repository →
-                </a>
+            <div class="readme-title">Project README.md</div>
+            <div id="readme-content">
+                <div class="loading">저장소에서 실시간으로 README 파일을 불러오는 중...</div>
             </div>
         </section>
     </main>
 
-    <footer>
-        <p>© 2026 Jang Un-ho. Powered by GitHub Pages.</p>
-    </footer>
+    <script>
+        // 장운호님의 실제 깃허브 저장소 README 주소
+        const repoUrl = 'https://raw.githubusercontent.com/cloudcover0127/knu_rccar_2026/main/README.md';
+
+        // 실시간으로 파일 불러오기(Fetch)
+        fetch(repoUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('README 파일을 가져오지 못했습니다.');
+                }
+                return response.text();
+            })
+            .then(markdownText => {
+                // 가져온 마크다운 텍스트를 HTML로 변환해서 구역에 집어넣기
+                document.getElementById('readme-content').innerHTML = marked.parse(markdownText);
+            })
+            .catch(error => {
+                document.getElementById('readme-content').innerHTML = 
+                    `<p style="color: #ef4444; text-align:center;">리포지토리에 아직 README.md 파일이 없거나 불러오지 못했습니다.</p>`;
+            });
+    </script>
 
 </body>
 </html>
