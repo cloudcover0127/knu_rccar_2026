@@ -8,25 +8,23 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
-        /* 기본 세팅 및 스무스 스크롤 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body { 
             font-family: 'Inter', 'Noto Sans KR', sans-serif; 
-            background-color: #030712; /* 더 깊은 블랙 계열로 변경 */
+            background-color: #030712; 
             color: #f3f4f6; 
             line-height: 1.8;
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
         }
 
-        /* 우주선 안 같은 은은한 가상 배경 광원들 */
         .bg-glow-1 { position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vh; background: radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%); pointer-events: none; }
         .bg-glow-2 { position: fixed; bottom: -10%; right: -10%; width: 50vw; height: 50vh; background: radial-gradient(circle, rgba(129,140,248,0.08) 0%, transparent 70%); pointer-events: none; }
 
         main { max-width: 680px; margin: 0 auto; padding: 6rem 1.5rem; position: relative; z-index: 10; }
 
-        /* 🔥 1. 네온 하이라이트가 들어간 프로필 카드 */
+        /* 프로필 카드 */
         .profile-card { 
             background: rgba(17, 24, 39, 0.7);
             backdrop-filter: blur(12px);
@@ -51,26 +49,32 @@
             margin-bottom: 0.8rem; 
             text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
         }
-        .profile-card h1 { 
-            font-size: 2.6rem; 
-            font-weight: 800; 
-            color: #fff; 
-            margin-bottom: 1rem; 
-            letter-spacing: -1px; 
-        }
-        .profile-card p { 
-            color: #9ca3af; 
-            font-size: 1.05rem; 
-            font-weight: 400; 
-            word-break: keep-all;
-        }
+        .profile-card h1 { font-size: 2.6rem; font-weight: 800; color: #fff; margin-bottom: 0.6rem; letter-spacing: -1px; }
         
-        /* 🔥 2. 글로우 이펙트가 포함된 깃허브 버튼 */
+        /* 💡 새롭게 추가된 트렌디한 뱃지 스타일 */
+        .badge-container { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+        .info-badge { 
+            background: rgba(56, 189, 248, 0.1); 
+            color: #38bdf8; 
+            border: 1px solid rgba(56, 189, 248, 0.2); 
+            padding: 0.25rem 0.65rem; 
+            border-radius: 6px; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+        }
+        .info-badge.mbti { 
+            background: rgba(129, 140, 248, 0.1); 
+            color: #818cf8; 
+            border: 1px solid rgba(129, 140, 248, 0.2); 
+        }
+
+        .profile-card p { color: #9ca3af; font-size: 1.05rem; word-break: keep-all; }
+        
         .repo-btn { 
             display: inline-flex; 
             align-items: center; 
             gap: 0.6rem;
-            margin-top: 2rem; 
+            margin-top: 1.5rem; 
             background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
             color: #030712; 
             padding: 0.75rem 1.5rem;
@@ -86,16 +90,9 @@
             box-shadow: 0 8px 25px rgba(56, 189, 248, 0.45);
         }
 
-        .section-title { 
-            font-size: 0.8rem; 
-            font-weight: 800; 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-            color: #4b5563; 
-            margin-bottom: 1.8rem; 
-        }
+        .section-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #4b5563; margin-bottom: 1.8rem; }
         
-        /* 🔥 3. 빵빵한 애니메이션 인터랙션이 가미된 아코디언 */
+        /* 아코디언 스타일 */
         #logs-container details {
             background: rgba(17, 24, 39, 0.4);
             backdrop-filter: blur(8px);
@@ -127,7 +124,6 @@
         }
         #logs-container summary::-webkit-details-marker { display: none; }
         
-        /* 화살표 대신 모던한 무브먼트 플러스(+) 기호 변경 */
         #logs-container summary::after {
             content: '+';
             position: absolute;
@@ -140,11 +136,10 @@
             transition: transform 0.3s ease, color 0.3s;
         }
         #logs-container details[open] summary::after {
-            transform: translateY(-50%) rotate(45deg); /* 열리면 X 기호로 교차 변형 */
+            transform: translateY(-50%) rotate(45deg);
             color: #38bdf8;
         }
 
-        /* 열릴 때 부드럽게 나타나는 본문 영역 */
         .details-content {
             padding: 2rem;
             background: rgba(15, 23, 42, 0.5);
@@ -159,10 +154,8 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .details-content ul { list-style: none; }
-        .details-content li { margin-bottom: 0.9rem; position: relative; padding-left: 1.5rem; }
-        
-        /* 네온 포인트 도트 */
+        .details-content ul { padding-left: 0.5rem; list-style: none; }
+        .details-content li { margin-bottom: 0.9rem; position: relative; padding-left: 1.5rem; color: #9ca3af; }
         .details-content li::before {
             content: "";
             position: absolute;
@@ -176,6 +169,9 @@
         }
         .details-content strong { color: #f3f4f6; font-weight: 600; margin-right: 0.5rem; }
         
+        #logs-container h1 { font-size: 1.5rem; color: #fff; margin-bottom: 1.5rem; font-weight: 800; }
+        #logs-container > p { color: #9ca3af; margin-bottom: 2rem; font-size: 1rem; }
+
         .loading { color: #4b5563; font-size: 0.9rem; text-align: center; padding: 4rem 0; font-family: monospace; }
         footer { text-align: center; margin-top: 8rem; padding: 2rem 0; border-top: 1px solid rgba(255, 255, 255, 0.03); color: #4b5563; font-size: 0.8rem; }
     </style>
@@ -189,6 +185,12 @@
         <section class="profile-card">
             <div class="university">KONGJU NATIONAL UNIVERSITY</div>
             <h1>장운호</h1>
+            
+            <div class="badge-container">
+                <span class="info-badge">○○학과</span>
+                <span class="info-badge mbti">MBTI: XXXX</span>
+            </div>
+            
             <p>공주대학교 | RC카 기반 자율주행 프로그램 교육 과정</p>
             
             <a href="https://github.com/cloudcover0127/knu_rccar_2026" target="_blank" class="repo-btn">
@@ -199,7 +201,7 @@
         <section>
             <div class="section-title">Daily Learning Logs</div>
             <div id="logs-container">
-                <div class="loading">Fetching and rendering logs from master branch...</div>
+                <div class="loading">Parsing dynamic markdown logs...</div>
             </div>
         </section>
         
@@ -231,6 +233,12 @@
                     return;
                 }
 
+                let currentEl = tempDiv.firstElementChild;
+                while (currentEl && currentEl.tagName.toUpperCase() !== 'H3') {
+                    container.appendChild(currentEl.cloneNode(true));
+                    currentEl = currentEl.nextElementSibling;
+                }
+
                 dates.forEach(dateElement => {
                     const details = document.createElement('details');
                     const summary = document.createElement('summary');
@@ -242,7 +250,7 @@
                     contentDiv.className = 'details-content';
 
                     let nextEl = dateElement.nextElementSibling;
-                    while (nextEl && nextEl.tagName !== 'H3') {
+                    while (nextEl && nextEl.tagName.toUpperCase() !== 'H3') {
                         contentDiv.appendChild(nextEl.cloneNode(true));
                         nextEl = nextEl.nextElementSibling;
                     }
