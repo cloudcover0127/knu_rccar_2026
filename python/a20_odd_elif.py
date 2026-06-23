@@ -5,7 +5,7 @@ def main():
     #     print("짝수입니다.")
     # else:
     #     print("홀수입니다.")
-    print("홀수" number % 2 else "짝수","입니다.")
+    print("홀수" if number % 2 else "짝수","입니다.")
 
 
 if __name__ == "__main__":
