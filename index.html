@@ -3,142 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cloudcover0127 | RC카 자율주행 포트폴리오</title>
+    <title>장운호 | 자율주행 포트폴리오</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        /* 글로벌 스타일 (다크 모드 개발자 감성) */
+        /* 깔끔한 다크 감성 스타일 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Inter', 'Noto Sans KR', sans-serif; 
-            background-color: #0f172a; /* 슬레이트 다크 배경 */
+            background-color: #0b0f19; 
             color: #e2e8f0; 
-            line-height: 1.7;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-        a { color: inherit; text-decoration: none; }
 
-        header { max-width: 800px; margin: 0 auto; padding: 2.5rem 1rem 1rem 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 800; font-size: 1.1rem; color: #38bdf8; letter-spacing: -0.5px; }
-        nav a { font-size: 0.9rem; color: #94a3b8; margin-left: 1.5rem; transition: color 0.2s; }
-        nav a:hover { color: #f1f5f9; }
-
-        main { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
-
-        /* 히어로 섹션 */
-        .hero { margin-bottom: 4rem; }
-        .hero .subtitle { color: #38bdf8; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
-        .hero h1 { font-size: 2.5rem; font-weight: 800; line-height: 1.3; color: #fff; margin-bottom: 1.2rem; letter-spacing: -1px; }
-        .hero h1 span { background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hero p { color: #94a3b8; font-size: 1.05rem; max-width: 580px; word-break: keep-all; }
-
-        /* 섹션 타이틀 */
-        .section-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin-bottom: 1.5rem; }
-
-        /* 프로젝트 메인 카드 (하이라이트) */
-        .repo-card { 
-            background: linear-gradient(145deg, #1e293b 0%, #111827 100%); 
-            border: 1px solid #334155; 
-            padding: 2.5rem 2rem; 
-            border-radius: 16px; 
-            margin-bottom: 4rem;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        main { 
+            flex: 1;
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 6rem 1.5rem 2rem 1.5rem; 
         }
-        .repo-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
-        .repo-badge { background: #064e3b; color: #34d399; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 4px; }
-        .repo-card h3 { font-size: 1.5rem; color: #fff; margin-bottom: 0.5rem; font-family: monospace; }
-        .repo-card .description { color: #cbd5e1; font-size: 1rem; margin-bottom: 1.5rem; word-break: keep-all; }
+
+        /* 내 프로필 상단 */
+        .profile { margin-bottom: 3rem; }
+        .university { font-size: 0.9rem; color: #38bdf8; font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .profile h1 { font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 1rem; }
+        .profile p { color: #94a3b8; font-size: 1.05rem; word-break: keep-all; }
+
+        /* 프로젝트 단독 카드 */
+        .section-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #475569; margin-bottom: 1rem; }
         
-        /* 프로젝트 내부 세부 활동 리스트 */
-        .repo-details { background: rgba(15, 23, 42, 0.6); padding: 1.2rem; border-radius: 8px; border: 1px solid #1e293b; margin-bottom: 1.5rem; }
-        .repo-details h4 { font-size: 0.9rem; color: #38bdf8; margin-bottom: 0.5rem; }
-        .repo-details ul { list-style: none; font-size: 0.9rem; color: #94a3b8; }
-        .repo-details li { margin-bottom: 0.4rem; padding-left: 1rem; position: relative; }
-        .repo-details li::before { content: "→"; position: absolute; left: 0; color: #38bdf8; }
+        .project-box { 
+            background: #111827; 
+            border: 1px solid #1f2937; 
+            padding: 1.8rem; 
+            border-radius: 12px; 
+            margin-bottom: 2rem;
+        }
+        .project-box h3 { font-size: 1.15rem; color: #fff; font-family: monospace; margin-bottom: 0.6rem; }
+        .project-box p { color: #94a3b8; font-size: 0.95rem; margin-bottom: 1.5rem; }
 
-        /* 깃허브 바로가기 버튼 */
-        .github-btn { 
+        /* 버튼 스타일 */
+        .btn { 
             display: inline-flex; 
             align-items: center; 
-            background: #fff; 
-            color: #0f172a; 
+            background: #38bdf8; 
+            color: #0b0f19; 
             font-weight: 700; 
-            padding: 0.75rem 1.5rem; 
-            border-radius: 8px; 
-            font-size: 0.9rem; 
-            transition: all 0.2s; 
+            padding: 0.6rem 1.2rem; 
+            border-radius: 6px; 
+            font-size: 0.85rem; 
+            text-decoration: none;
+            transition: background 0.2s; 
         }
-        .github-btn:hover { background: #38bdf8; color: #fff; transform: translateY(-2px); }
+        .btn:hover { background: #0ea5e9; color: #fff; }
 
-        /* 현재 학습 스택 */
-        .tech-tags { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 4rem; }
-        .tag { background-color: #1e293b; color: #e2e8f0; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; border: 1px solid #334155; }
-        .tag.active { border-color: #38bdf8; color: #38bdf8; }
-
-        footer { padding: 4rem 0 2rem 0; color: #475569; font-size: 0.8rem; text-align: center; border-top: 1px solid #1e293b; }
+        footer { text-align: center; padding: 2rem 0; color: #334155; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">CLOUDCOVER0127.DEV</div>
-        <nav>
-            <a href="#project">Project</a>
-            <a href="#tech">Tech</a>
-        </nav>
-    </header>
-
     <main>
-        <!-- 히어로 섹션 -->
-        <section class="hero">
-            <div class="subtitle">Autonomous Driving Student</div>
-            <h1>안녕하세요, <br>RC카 자율주행을 연구하는 <span>cloudcover0127</span>입니다.</h1>
-            <p>하드웨어 제어와 소프트웨어 알고리즘의 융합에 관심을 가지고 있으며, 현재 경북대학교 자율주행 교육 과정에 참여하고 있습니다.</p>
+        <section class="profile">
+            <div class="university">KONGJU NATIONAL UNIVERSITY</div>
+            <h1>장운호</h1>
+            <p>공주대학교에 재학 중이며, 현재 RC카를 활용한 자율주행 프로그램 교육 과정을 이수하고 있습니다.</p>
         </section>
 
-        <!-- 메인 프로젝트 섹션 (내 레포지토리 강조) -->
-        <section id="project">
-            <div class="section-title">Main Repository</div>
-            
-            <div class="repo-card">
-                <div class="repo-header">
-                    <h3>cloudcover0127 / knu_rccar_2026</h3>
-                    <span class="repo-badge">Active</span>
-                </div>
-                <p class="description">
-                    RC카 하드웨어 시스템을 활용한 자율주행 프로그램 구현 및 테스트 프로젝트 저장소입니다. 
-                    현재 알고리즘 설계의 기본이 되는 파이썬 프로그래밍 언어를 마스터하는 단계부터 차근차근 진행하고 있습니다.
-                </p>
+        <section>
+            <div class="section-title">Current Project</div>
+            <div class="project-box">
+                <h3>knu_rccar_2026</h3>
+                <p>파이썬 기초 문법부터 자율주행 알고리즘 구현까지, 교육 과정을 통해 배우고 개발한 코드를 기록해 나가는 저장소입니다.</p>
                 
-                <div class="repo-details">
-                    <h4>🎯 학습 및 개발 마일스톤</h4>
-                    <ul>
-                        <li>주행 제어 로직을 위한 핵심 Python 기초 문법 구현 중</li>
-                        <li>(예정) 센서 데이터 수집 알고리즘 및 모터 구동 모듈 통합</li>
-                        <li>(예정) 실시간 트랙 인식을 통한 자율 구동 알고리즘 최적화</li>
-                    </ul>
-                </div>
-
-                <!-- 내 진짜 리포지토리 링크 연결 -->
-                <a href="https://github.com/cloudcover0127/knu_rccar_2026" target="_blank" class="github-btn">
-                    🐱 GitHub Repository 보기
+                <a href="https://github.com/cloudcover0127/knu_rccar_2026" target="_blank" class="btn">
+                    GitHub Repository →
                 </a>
-            </div>
-        </section>
-
-        <!-- 기술 스택 섹션 -->
-        <section id="tech">
-            <div class="section-title">Skills & Tools</div>
-            <div class="tech-tags">
-                <span class="tag active">Python (Core)</span>
-                <span class="tag">Git / GitHub</span>
-                <span class="tag">HTML5 / CSS3</span>
-                <span class="tag">Autonomous Driving Logic</span>
             </div>
         </section>
     </main>
 
     <footer>
-        <p>© 2026 cloudcover0127. Powered by GitHub Pages.</p>
+        <p>© 2026 Jang Un-ho. Powered by GitHub Pages.</p>
     </footer>
 
 </body>
