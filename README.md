@@ -33,6 +33,6 @@
 **-5교시:** list, list 메소드, 바인딩, pyi  
 **-6교시:** list method(pop, del, remove)  
 **-7교시:** for문,range, enumerate, zip  
-**-8교시:** 딕셔너리  
+**-8교시:** 딕셔너리, webview  
 
 ---

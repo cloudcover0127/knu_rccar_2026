@@ -2,10 +2,24 @@
 import webview
 from pathlib import Path
 
+BASE_PATH = Path(__file__).resolve().parent
+NOTE_PATH = "note.txt"
+
+class MemoApi:
+    def __init__(self):
+        pass
+    def save_note(self,text):
+        NOTE_PATH.write_text(text,encoding="utf-8")
+        return{"status": "saved","path":str(NOTE_PATH)}
+    
+    def load_note(self):
+        return {"text": NOTE_PATH.read_text(encoding="utf-8")}
+
 def main():
     webview.create_window(
         "simple text",
-        url=Path(Path(__file__).resolve() / "text.html").as_uri(),
+        url=(Path(__file__).resolve().parent / "text.html").as_uri(),
+        js_api=MemoApi(),
         width=640,
         height=520,
         resizable=True
