@@ -18,7 +18,9 @@ def main():
     print(list_d[1][2])
     print(list_d[0][1])
 
-    print(list_d)
+    # print(list_d[3])
+    print(len(list_d))
+    print(list_d.__len__())
 
 if __name__ == "__main__":
     main()
