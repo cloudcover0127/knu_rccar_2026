@@ -9,8 +9,14 @@ def main():
     del list_b[2]
     print(list_a)
     print(list_b)
-    del list_a
-    print(list_a)
+    # del list_a
+    # print(list_a)
+    print(list_b.pop())
+    print(list_b)
+
+    if "f" in list_b
+        list_b.remove("f")
+    print(list_b)
 
 if __name__ == "__main__":
     main()
