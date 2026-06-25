@@ -56,11 +56,11 @@
 
 ---
 
-**-1교시:** 
-**-2교시:** 
-**-3교시:** 
-**-4교시:** 
-**-5교시:** 
-**-6교시:** 
-**-7교시:** 
-**-8교시:** 
+**-1교시:** pickle  
+**-2교시:** class_dictionary  
+**-3교시:** special_method  
+**-4교시:** class 변수  
+**-5교시:** class method  
+**-6교시:** destructor,del,gc.collect  
+**-7교시:** property,setter,getter,상속  
+**-8교시:** 모듈 및 배포, random함수  
