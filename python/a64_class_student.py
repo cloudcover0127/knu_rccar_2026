@@ -16,6 +16,9 @@ class Student:
         return self.get_sum() / 4
 
     def to_string(self):
+        print()
+
+    def to_string(self):
         print(f"{self.name}\t{self.get_sum()}\t{self.get_average()}")
 
 
