@@ -3,31 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autocar Professional Controller</title>
+    <title>Autocar Real Dynamic Cockpit</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>🏎️ AUTOCAR COMMAND</h2>
-        <div class="status-bar">
-            <div class="status-dot"></div>
-            <span>정석 구조 분리 완료</span>
+    <header class="navbar">
+        <div class="nav-logo">⚡ KNU_AUTOCAR INTERFACE</div>
+        <div class="nav-status" id="sysStatus">🔴 SYSTEM OFF</div>
+    </header>
+
+    <main class="cockpit-screen">
+        <div class="hud-container">
+            <div class="speed-display">
+                <button class="power-btn" id="powerBtn" onclick="togglePower()">
+                    ENGINE<br><span class="power-sub">START/STOP</span>
+                </button>
+                
+                <div class="speed-value" id="speedNum">0</div>
+                <div class="speed-unit">km/h</div>
+                <div class="drive-gear" id="gearText">READY</div>
+                <div class="steer-angle-text" id="steerText">STEER: 0°</div>
+            </div>
+
+            <div class="pad-zone">
+                <button class="control-btn btn-up" onmousedown="pedalControl('forward', true)" onmouseup="pedalControl('forward', false)" onmouseleave="pedalControl('forward', false)">▲<span class="btn-sub">DRIVE</span></button>
+                <button class="control-btn btn-left">◀<span class="btn-sub">WHEEL</span></button>
+                <button class="control-btn btn-stop" onclick="emergencyStop()">■<span class="btn-sub">E-STOP</span></button>
+                <button class="control-btn btn-right">▶<span class="btn-sub">WHEEL</span></button>
+                <button class="control-btn btn-down" onmousedown="pedalControl('backward', true)" onmouseup="pedalControl('backward', false)" onmouseleave="pedalControl('backward', false)">▼<span class="btn-sub">REVERSE</span></button>
+            </div>
         </div>
-        
-        <div class="controller">
-            <div class="blank"></div>
-            <button onclick="sendCommand('forward')">▲</button>
-            <div class="blank"></div>
-            
-            <button onclick="sendCommand('left')">◀</button>
-            <button onclick="sendCommand('stop')" class="stop-btn">■</button>
-            <button onclick="sendCommand('right')">▶</button>
-            
-            <div class="blank"></div>
-            <button onclick="sendCommand('backward')">▼</button>
-            <div class="blank"></div>
-        </div>
-    </div>
+
+        <footer class="system-footer">
+            <span class="log-label">[SYSTEM]</span>
+            <span id="consoleLog">> ENGINE START REQUIRED.</span>
+        </footer>
+    </main>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
