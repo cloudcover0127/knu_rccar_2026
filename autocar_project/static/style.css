@@ -25,7 +25,7 @@ body {
 
 .speed-display { text-align: center; min-width: 180px; display: flex; flex-direction: column; align-items: center; }
 
-/* 🔘 엔진 스타트 스톱 버튼 */
+/* 시동 버튼 */
 .power-btn {
     width: 85px; height: 85px; border-radius: 50%; background: #1a1215;
     border: 3px solid #ef4444; color: #ef4444; font-size: 11px; font-weight: 800;
@@ -42,10 +42,42 @@ body {
 .speed-value.active { color: #00f0ff; text-shadow: 0 0 25px rgba(0,240,255,0.5); }
 .speed-unit { font-size: 13px; color: #334155; font-weight: 700; margin-bottom: 15px; }
 
-.drive-gear { font-size: 13px; font-weight: 800; color: #475569; background: #07080e; padding: 6px 12px; border-radius: 6px; border: 1px solid #1a1e33; width: 130px; margin-bottom: 8px;}
-.steer-angle-text { font-size: 12px; font-weight: 700; color: #475569; font-family: monospace; }
+.drive-gear { font-size: 13px; font-weight: 800; color: #475569; background: #07080e; padding: 6px 12px; border-radius: 6px; border: 1px solid #1a1e33; width: 130px; margin-bottom: 15px;}
 
-/* 🕹️ 패드 존 */
+/* 🔄 [최종 업그레이드] 실제 회전하는 스티어링 휠 Zone */
+.steering-zone {
+    width: 160px; height: 160px;
+    position: relative;
+    margin-bottom: 15px;
+}
+.steering-background {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: #07080e; border-radius: 50%; border: 2px solid #1a1e33;
+    overflow: hidden;
+}
+.steering-center-line {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 20px; background: #ef4444; border-radius: 2px;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+}
+.steering-wheel {
+    position: absolute; top: 10%; left: 10%; width: 80%; height: 80%;
+    background: #161a2e; border: 12px solid #334155; border-radius: 50%;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 15px rgba(0,0,0,0.4);
+    transition: transform 0.2s ease-out; /* 핵심: 회전 애니메이션 */
+    z-index: 2;
+}
+/* 시스템 활성화 시 핸들 테두리에 네온 */
+body.sys-active .steering-wheel { border-color: #00f0ff; box-shadow: 0 0 20px rgba(0,240,255,0.4); }
+
+.wheel-spoke { position: absolute; background-color: #334155; }
+body.sys-active .wheel-spoke { background-color: #00f0ff; }
+.wheel-spoke.horizontal { width: 100%; height: 8px; top: 50%; transform: translateY(-50%); }
+.wheel-spoke.vertical { width: 8px; height: 50%; left: 50%; bottom: 0; transform: translateX(-50%); }
+.wheel-center { width: 40px; height: 40px; background: #07080e; border: 4px solid #334155; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+body.sys-active .wheel-center { border-color: #00f0ff; }
+
+/* 패드 존 */
 .pad-zone { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 250px; height: 250px; }
 .control-btn {
     background: #161a2e; border: 2px solid #232946; color: #475569; border-radius: 20px;
@@ -73,7 +105,7 @@ body.sys-active .control-btn.btn-stop .btn-sub { color: #fff; }
 .btn-right { grid-column: 3; grid-row: 2; }
 .btn-down { grid-column: 2; grid-row: 3; }
 
-/* 🖥️ 고급 시스템 푸터 로그 창 */
+/* 고급 시스템 푸터 */
 .system-footer { 
     width: 100%; max-width: 720px; background: rgba(15, 18, 32, 0.6); backdrop-filter: blur(10px);
     border: 1px solid #1f2540; padding: 14px 24px; border-radius: 14px; 
