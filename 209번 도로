@@ -1,0 +1,138 @@
+import numpy as np
+import pyaudio
+import re
+
+class MMLPlayer:
+    def __init__(self, volume=0.3, rate=44100):
+        self.volume = volume
+        self.rate = rate
+        self.p = pyaudio.PyAudio()
+        self.stream = self.p.open(format=pyaudio.paFloat32, channels=1, rate=self.rate, output=True)
+        
+        # 음이름에 따른 반음 개수 오프셋 (다장조 기준)
+        self.note_map = {'c': 0, 'd': 2, 'e': 4, 'f': 5, 'g': 7, 'a': 9, 'b': 11}
+
+    def mml_to_wav(self, mml_string):
+        """단일 MML 트랙 문자열을 주파수 샘플 배열로 변환합니다."""
+        # 기본값 설정
+        tempo = 172
+        default_length = 4
+        volume = 11
+        octave = 4  # 마비노기 기본 옥타브는 보통 4입니다.
+        
+        # 정규식을 이용한 토큰화 (단어별로 쪼개기)
+        tokens = re.findall(r'(t\d+|v\d+|l\d+\.?|<|>|&|[a-g][+#-]?\d*\.?|r\d*\.?|n\d+)', mml_string.lower())
+        
+        # 전체 오디오 샘플을 담을 리스트
+        track_samples = []
+        
+        i = 0
+        while i < len(tokens):
+            token = tokens[i]
+            
+            if token.startswith('t'):
+                tempo = int(token[1:])
+            elif token.startswith('v'):
+                volume = int(token[1:])
+            elif token.startswith('l'):
+                default_length = float(token[1:].replace('.', ''))
+                # 마비노기 꼼수 분수 길이 처리(.이 붙으면 1.5배)는 여기선 단순화
+            elif token == '<':
+                octave = max(1, octave - 1)
+            elif token == '>':
+                octave = min(8, octave + 1)
+            elif token.startswith('n'): # 절대 음값 (예: n62)
+                note_num = int(token[1:])
+                # n값으로 주파수 계산 (n96이 8옥타브 도 부근)
+                freq = 440.0 * (2 ** ((note_num - 69) / 12))
+                # n의 기본 길이는 l 지정 길이를 따름
+                duration = (60 / tempo) * (4 / default_length)
+                track_samples.append(self.gen_tone(freq, duration, volume))
+            elif token.startswith('r') or token[0] in 'cdefgab':
+                # 음이름 또는 쉼표 처리
+                is_rest = token.startswith('r')
+                
+                # 길이 추출
+                length_match = re.search(r'\d+', token)
+                length = float(length_match.group()) if length_match else default_length
+                
+                # 4분음표 기준 초(second) 계산
+                duration = (60 / tempo) * (4 / length)
+                if '.' in token:
+                    duration *= 1.5
+                
+                if is_rest:
+                    track_samples.append(np.zeros(int(self.rate * duration), dtype=np.float32))
+                else:
+                    note_char = token[0]
+                    semitones = self.note_map[note_char]
+                    
+                    # 샵(+) 또는 플랫(-) 처리
+                    if '+' in token or '#' in token:
+                        semitones += 1
+                    elif '-' in token:
+                        semitones -= 1
+                        
+                    # 미디 노트 번호 기반 주파수 계산 (C4 = 60)
+                    midi_note = (octave + 1) * 12 + semitones
+                    freq = 440.0 * (2 ** ((midi_note - 69) / 12))
+                    
+                    track_samples.append(self.gen_tone(freq, duration, volume))
+            i += 1
+            
+        return np.concatenate(track_samples) if track_samples else np.array([], dtype=np.float32)
+
+    def gen_tone(self, freq, duration, volume_level):
+        """주파수와 길이에 맞는 사인파 샘플을 생성합니다."""
+        vol = (volume_level / 15.0) * self.volume  # MML 볼륨 0~15 반영
+        t = np.arange(int(self.rate * duration)) / self.rate
+        # 부드러운 소리를 위해 사인파 끝에 약간의 페이드아웃(Envelope) 적용
+        envelope = np.ones_like(t)
+        fade_size = min(int(self.rate * 0.01), len(t)//2)
+        if fade_size > 0:
+            envelope[-fade_size:] = np.linspace(1, 0, fade_size)
+            
+        return (vol * np.sin(2 * np.pi * freq * t) * envelope).astype(np.float32)
+
+    def play_mml(self, mml_text):
+        # 콤마(,)를 기준으로 트랙 분리
+        tracks = mml_text.split(',')
+        track_waves = []
+        max_len = 0
+        
+        print("MML 악보를 파싱하고 오디오를 생성 중입니다...")
+        for track in tracks:
+            wave = self.mml_to_wav(track)
+            track_waves.append(wave)
+            if len(wave) > max_len:
+                max_len = len(wave)
+                
+        # 모든 트랙의 길이를 맞추고 믹싱(합산)
+        mixed_wave = np.zeros(max_len, dtype=np.float32)
+        for wave in track_waves:
+            mixed_wave[:len(wave)] += wave
+            
+        # 클리핑(소리 깨짐) 방지 제한
+        mixed_wave = np.clip(mixed_wave, -1.0, 1.0)
+        
+        print("재생을 시작합니다. (Ctrl+C로 종료)")
+        # 청크 단위로 나누어 스트림에 기록
+        chunk_size = 1024
+        for i in range(0, len(mixed_wave), chunk_size):
+            chunk = mixed_wave[i:i+chunk_size]
+            self.stream.write(chunk.tobytes())
+
+    def stop(self):
+        self.stream.stop_stream()
+        self.stream.close()
+        self.p.terminate()
+
+# 마비노기 209번 도로 MML 데이터
+mml_data = """MML@t172r1r1v15<aear>>c+d<e8d8c+8c-8>c+dc+<baea>c+8d8e<ael8>c+dedc+c-l4aec<ba8e8b8>c8de<bal1.rrrrrr1v13l2eabrl4abrn62b2a2<erl8c+rc+rb4c+rdrdrf+4dra2l4g+r>g+a8r2r8g+a8f8r2g+a8r.>a2r2.<aeag+2abb+2b>cd2cde2v15eb8a.r8a8b8a8reo2a1&a>d2e<a.a8av11ar1>d.d.r1.v13l8er4er2g+r4g+r2ar4ar2brbv14brerv15er4er2gr4gr2f+r4f+r2v14br4br1.r1.r4.v13>d.l32.&dr64<f+8.&f+r64a8.&ar64<b8.&br64v15>a8.&ar64e8.&er64a8.&al4rr64>>c+d<e8d8c+8c-8>c+dc+<baea>c+8d8e<ael8>c+dedc+c-l4aec<ba8e8b8>c8de<bal1.rrrrrr1v13l2eabrl4abrn62b2a2<erl8c+rc+rb4c+rdrdrf+4dra2l4g+r>c+c+r2c+c+r2g+a8r.>a2r2.<aeag+2abb+2b>cd2cde2v15l8e.&e32.r64ba4.rabal4reo2a1&a>d2e<ar8a8av11ar1>d.d.r1.v13l8er4er2g+r4g+r2ar4ar2brbv14brerv15er4er2gr4gr2v13f+r4f+r2br4br4.>f+1l2ag+l32&g+c+ea2.&a8&a,v13l8>>baeabaeabaeav14ec+<aev15l2<ael4e.f+8>ea2.e2c+dea2.e2>c+de<a2.e2bb+bal8>aee<aaee<aaeeaan64a>e>av14dd<aadd<aav13ddaan62a>d>ael16ec+<a8n73al8ea<aaeeaa>ea>eaf+l16f+d<a8n74al8f+n74<aaddaa>dan74l4<ar>ec+8d8ef+e8d8c+<aee2a2n61abre>c+8d8ef+e8d8c+8<b8aeabrn61baf+l8f+f+an61g+f+c+4c+4an61g+f+<a4a>ea>ed+2l4<eag+f+c+f+e2eg+a2gab2gb>c+2v15c+e8e.e8e8e8e8rc+aeab+2bab2bav11l8>>c+de<ea>ed<baedc+<aedc+<aeae>c+dv12eabn73v13aerar4>c+def+rerdc+<baerar4>dc+r<areev14abarv15erar4>c+dc+<baera>c+deer<ar4>f+ec+v14<arerv13>dc+<a>baeabaeabaeaec+<ae>badabadabadad<baev15l2<ael4e.f+8>ea2.e2c+dea2.e2>c+de<a2.e2bb+bal8>aee<aaee<aaeeaan64a>e>av14dd<aadd<aav13ddaan62a>d>ael16ec+<a8n73al8ea<aaeeaa>ea>eaf+l16f+d<a8n74al8f+n74<aaddaa>dan74<a4r4>e4c+de4f+4edc+rl4<aee2a2n61abre>c+8d8ef+e8d8c+8<b8aeabrn61bag+l8af+an61g+f+g+4afan61g+f+<a4a>ea>ed+2l4<eag+f+c+f+e2eg+a2gab2gb>c+2v15c+e8e.e8e8e8e8rc+aeab+2bab2bav11l8>>c+de<ea>ed<baedc+<aedc+<aeae>c+dv12eabn73v13aerar4>c+def+rerdc+<baerar4>dc+r<areev14abarv15erar4>c+dc+<baera>c+dv13eer<ar4>f+ec+<arerdc+<al1de2d2<a,rv13<eab>c+ev14an61v15<<al16a&a64a.a&a64a4a&a64a.a&a64g+2g+2f+2f+4f+&f+64f+.f+&f+64e2e4e&e64e.e&e64d2d4d&d64d.d&d64c+2c+4c+&c+64c+.c+&c+64f2f4f&f64f.f&f64g2g4g&g64g.g&g64l8aa>eeaan49n49ee<aabbn37n37av14a>f+f+aa>dd<f+v13f+<aabb>ddl4<a>eg+a<a>abn49<a>df+a<a>f+g+a<aan37a>c+c+ec+ddf+deeg+e<aan37a>a2g+n49a2b2c+c+f+c+aal8<f+f+f+f+>a4a4<ffffeeeer4d+2r2.f+f+f+f+4a4n38eeee4b4n40ffff4>c4f<gggg4>d4gv15<a<a1.&a>a4<a1&a4>d2e4<a.&a32.rr64aa4v11a4r1>a4.a4.r2.rv12>e4ev13<aa>c+r4c+r4c+c+er4er4ddf+r4f+r4eearav14arc+rv15c+<aan37an37ar>ec+c+eegerdddddaf+rv14aeeav13ebal4<a>eab>c+ean61<<a>f+abd<baev15al16a&a64a.a&a64a4a&a64a.a&a64g+2g+2f+2f+4f+&f+64f+.f+&f+64e2e4e&e64e.e&e64d2d4d&d64d.d&d64c+2c+4c+&c+64c+.c+&c+64f2f4f&f64f.f&f64g2g4g&g64g.g&g64l8aa>eeaan49n49ee<aabbn37n37av14a>f+f+aa>dd<f+v13f+<aabb>ddl4<a>eg+a<a>abn49<a>df+a<a>f+g+al8<arar>c+4<ar>c+rc+re4c+rdrdrf+4drererg+4er<arar>c+4<ar>a2g+4>c+.&c+32.r64<a2b2c+4c+4f+4c+ra4a4<f+f+f+f+>a4a4<ffffeeeer4d+2r2.f+f+f+f+rarn38eeeerbrn40ffffr>crf<ggggr>drgv15<a<a1.&al4n33a1&a>d2e<a.a8av11ar1>a.a.r2.l8rv12>e4ev13<aa>c+r4c+r4c+c+er4er4ddf+r4f+r4eearav14arc+rv15c+<aan37an37ar>ec+c+eegerv13dddddaf+raeeaebac-df+bbf+d<beg+b>ed<bg+e<a1;"""
+
+# 실행
+player = MMLPlayer(volume=0.2) # 전체 볼륨 조절
+try:
+    player.play_mml(mml_data)
+finally:
+    player.stop()
