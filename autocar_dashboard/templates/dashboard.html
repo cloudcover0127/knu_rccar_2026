@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCar 원격 관제 대시보드</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0f0f12; color: white; text-align: center; margin: 0; padding: 20px; user-select: none; }
+        .container { max-width: 900px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .panel { background: #1e1e24; border: 1px solid #3a3a4a; border-radius: 12px; padding: 20px; min-width: 280px; }
+        .video-box { width: 100%; max-width: 640px; background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+        .video-box img { width: 100%; display: block; }
+        .btn { background: #00ffcc; color: #000; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #00ccaa; }
+        
+        /* 조이스틱 구역 */
+        #joystick-zone { width: 200px; height: 200px; background: #2a2a35; border-radius: 50%; margin: 20px auto; position: relative; border: 2px solid #555; touch-action: none; }
+        #stick { width: 60px; height: 60px; background: #ff3366; border-radius: 50%; position: absolute; left: 70px; top: 70px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        
+        /* 카메라 십자 패드 */
+        .grid-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 180px; margin: 0 auto; }
+        .pad-btn { background: #2a2a35; color: #fff; border: 1px solid #555; border-radius: 6px; padding: 12px 0; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .pad-btn:style-active { background: #00ffcc; color: #000; }
+    </style>
+</head>
+<body>
+
+    <h1>🚗 AUTOCAR PRECISION DASHBOARD</h1>
+    <hr style="border: 0.5px solid #333; width: 80%; margin-bottom: 30px;">
+
+    <div class="container">
+        <div class="panel" style="flex: 1 1 600px;">
+            <div class="video-box">
+                <img id="stream-img" src="" alt="카메라 스트리밍 정지됨 (ON 버튼을 누르세요)">
+            </div>
+            <button class="btn" onclick="toggleCamera(true)">카메라 ON</button>
+            <button class="btn" style="background:#ff3366;" onclick="toggleCamera(false)">카메라 OFF</button>
+        </div>
+
+        <div class="panel">
+            <h3>🕹️ 주행 조이스틱</h3>
+            <p style="font-size:12px; color:#aaa;">마우스로 빨간 원을 드래그하세요</p>
+            <div id="joystick-zone">
+                <div id="stick"></div>
+            </div>
+        </div>
+
+        <div class="panel" style="width: 300px;">
+            <h3 style="color: #00ffcc; font-size: 15px; margin-top:0;">📷 CAMERA PTZ (꾹 누르면 연속이동)</h3>
+            <div style="font-family: monospace; font-size: 13px; color: #8a8a9a; margin-bottom: 15px;">
+                PAN: <span id="pan-display" style="color:#00ffcc;">90</span>° | 
+                TILT: <span id="tilt-display" style="color:#00ffcc;">45</span>°
+            </div>
+            <div class="grid-pad">
+                <div></div>
+                <button class="pad-btn" onmousedown="startCameraInterval('up')" onmouseup="stopCameraInterval()" onmouseleave="stopCameraInterval()">▲</button>
+                <div></div>
+                
+                <button class="pad-btn" onmousedown="startCameraInterval('right')" onmouseup="stopCameraInterval()" onmouseleave="stopCameraInterval()">◀</button>
+                <div style="background: #111; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #555;">Hold</div>
+                <button class="pad-btn" onmousedown="startCameraInterval('left')" onmouseup="stopCameraInterval()" onmouseleave="stopCameraInterval()">▶</button>
+                
+                <div></div>
+                <button class="pad-btn" onmousedown="startCameraInterval('down')" onmouseup="stopCameraInterval()" onmouseleave="stopCameraInterval()">▼</button>
+                <div></div>
+            </div>
+        </div>
+
+        <div class="panel" style="flex: 1 1 100%;">
+            <h3>📢 실시간 오디오 방송 (TTS)</h3>
+            <input type="text" id="tts-text" placeholder="로봇이 말할 명구를 입력하세요" style="padding: 10px; width: 60%; border-radius: 4px; border: 1px solid #555; background: #222; color: #fff;">
+            <button class="btn" onclick="sendTTS()">방송하기</button>
+            <button class="btn" style="background: #ffcc00; color:#000;" onclick="sendMelody()">멜로디 재생</button>
+        </div>
+    </div>
+
+    <script>
+        // --- [카메라 화면 스트리밍 토글] ---
+        function toggleCamera(status) {
+            const img = document.getElementById('stream-img');
+            img.src = status ? "/video_feed" : "";
+        }
+
+        // --- [★ 스마트 카메라 꾹 누르기 기능 구현] ---
+        let cameraTimer = null;
+
+        function startCameraInterval(direction) {
+            if (cameraTimer !== null) return;
+            
+            // 누르는 순간 즉시 1번 실행
+            sendCameraCmd(direction);
+            
+            // 이후 0.05초(50ms)마다 명령어를 폭사하여 스르륵 부드럽게 움직이게 만듦
+            cameraTimer = setInterval(() => {
+                sendCameraCmd(direction);
+            }, 50);
+        }
+
+        function stopCameraInterval() {
+            if (cameraTimer !== null) {
+                clearInterval(cameraTimer);
+                cameraTimer = null;
+            }
+        }
+
+        function sendCameraCmd(direction) {
+            fetch('/api/camera', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ direction: direction })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status !== "ignored") {
+                    document.getElementById('pan-display').innerText = data.pan;
+                    document.getElementById('tilt-display').innerText = data.tilt;
+                }
+            });
+        }
+
+        // --- [TTS 및 오디오 전송] ---
+        function sendTTS() {
+            const text = document.getElementById('tts-text').value;
+            fetch('/api/tts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text })
+            });
+        }
+        function sendMelody() {
+            fetch('/api/tts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: "멜로디 재생" })
+            });
+        }
+
+        // --- [조이스틱 드래그 스크립트] ---
+        const zone = document.getElementById('joystick-zone');
+        const stick = document.getElementById('stick');
+        let active = false, startX, startY, currentX = 0, currentY = 0;
+
+        zone.addEventListener('mousedown', startDrag);
+        window.addEventListener('mouseup', endDrag);
+        window.addEventListener('mousemove', drag);
+
+        function startDrag(e) { active = true; startX = e.clientX - currentX; startY = e.clientY - currentY; }
+        function endDrag() { 
+            active = false; currentX = 0; currentY = 0; stick.style.left = '70px'; stick.style.top = '70px'; 
+            sendMove(0, 0);
+        }
+        function drag(e) {
+            if (!active) return;
+            let x = e.clientX - startX; let y = e.clientY - startY;
+            const dist = Math.sqrt(x*x + y*y);
+            if (dist > 70) { x = (x/dist)*70; y = (y/dist)*70; }
+            currentX = x; currentY = y;
+            stick.style.left = (70 + x) + 'px'; stick.style.top = (70 + y) + 'px';
+            
+            const sendX = Math.round((x / 70) * 100);
+            const sendY = Math.round(-(y / 70) * 100); 
+            sendMove(sendX, sendY);
+        }
+
+        let lastMoveTime = 0;
+        function sendMove(x, y) {
+            const now = Date.now();
+            if(now - lastMoveTime < 100 && x !== 0 && y !== 0) return; 
+            lastMoveTime = now;
+            fetch('/api/move', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x: x, y: y })
+            });
+        }
+    </script>
+</body>
+</html>
